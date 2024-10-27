@@ -1,0 +1,30 @@
+# Application Configuration
+
+app:
+  name: "TalkToDB"
+  version: "0.1.0-SNAPSHOT"
+
+# Server Configuration
+
+server:
+  port: 8080
+
+# Logging Configuration
+
+logging:
+  level:
+    root: INFO
+
+# Database Configuration
+
+spring:
+  datasource:
+    url: "jdbc:mysql://localhost:3306/talktodb"
+    username: "root"
+    password: "root"
+    driver-class-name: "com.mysql.cj.jdbc.Driver"
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
