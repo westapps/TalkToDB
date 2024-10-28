@@ -14,6 +14,7 @@ target/
 project/target/
 project/boot/
 history/
+.bsp
 
 # Generated source
 src_managed/
