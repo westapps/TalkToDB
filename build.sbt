@@ -17,7 +17,8 @@ lazy val root = (project in file("."))
       "org.springframework.boot" % "spring-boot-starter-actuator" % "3.1.3",
       "org.springframework.boot" % "spring-boot-starter-test" % "3.1.3" % Test,
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.2",
-      "org.scala-lang.modules" %% "scala-java8-compat" % "1.0.2"
+      "org.scala-lang.modules" %% "scala-java8-compat" % "1.0.2",
+      "com.github.pjfanning" %% "jackson-module-enumeratum" % "2.14.1"
     ),
 
     assembly / assemblyMergeStrategy := {

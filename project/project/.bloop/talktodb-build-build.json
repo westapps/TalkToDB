@@ -215,7 +215,7 @@
         "platform": {
             "name": "jvm",
             "config": {
-                "home": "/Users/simonxie/Library/Application Support/Cursor/User/globalStorage/pleiades.java-extension-pack-jdk/java/21",
+                "home": "/Users/simonxie/Library/Java/JavaVirtualMachines/corretto-22.0.2/Contents/Home",
                 "options": [
                     "-Duser.dir=/Users/simonxie/Scala/TalkToDB/project/project"
                 ]
@@ -224,7 +224,7 @@
                 
             ],
             "runtimeConfig": {
-                "home": "/Users/simonxie/Library/Application Support/Cursor/User/globalStorage/pleiades.java-extension-pack-jdk/java/21",
+                "home": "/Users/simonxie/Library/Java/JavaVirtualMachines/corretto-22.0.2/Contents/Home",
                 "options": [
                     "-Duser.dir=/Users/simonxie/Scala/TalkToDB/project/project"
                 ]
