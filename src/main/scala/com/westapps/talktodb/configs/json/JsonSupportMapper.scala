@@ -9,7 +9,6 @@ import com.fasterxml.jackson.datatype.jsr310.deser.{LocalDateDeserializer, Local
 import com.fasterxml.jackson.datatype.jsr310.ser.{LocalDateSerializer, LocalDateTimeSerializer}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.github.pjfanning.enumeratum.EnumeratumModule
-import com.westapps.talktodb.configs.json.JsonSupportMapper.createObjectMapper
 import org.springframework.context.annotation.{Bean, Configuration, Primary}
 
 import java.time.{LocalDate, LocalDateTime}
@@ -19,10 +18,10 @@ import java.time.format.DateTimeFormatter
 class JsonSupportMapper {
   @Bean
   @Primary
-  def jsonSupportMapper: ObjectMapper = createObjectMapper
+  def jsonMapper: ObjectMapper = JsonSupportMapperHelper.createObjectMapper
 }
 
-object JsonSupportMapper {
+object JsonSupportMapperHelper {
   def createObjectMapper: ObjectMapper = {
     val localDateTimeModule = new SimpleModule()
 
@@ -53,5 +52,4 @@ object JsonSupportMapper {
 
     jsonMapper
   }
-
 }

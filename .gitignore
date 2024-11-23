@@ -1,6 +1,8 @@
 # Compiled class files
 *.class
 
+src/test/resources/application-test.yaml
+
 # Log files
 *.log
 logs/

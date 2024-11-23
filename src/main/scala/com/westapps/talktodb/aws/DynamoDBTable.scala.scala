@@ -1,5 +1,7 @@
 package com.westapps.talktodb.aws
 
-class DynamoDBTable {
+class DynamoDBTable[T](
+
+) {
   
 }
