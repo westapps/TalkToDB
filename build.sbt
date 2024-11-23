@@ -34,6 +34,9 @@ lazy val root = (project in file("."))
       "org.springframework.boot" % "spring-boot-starter-validation" % springBootVersion,
       "org.springframework" % "spring-context" % "6.0.11",
       //
+      "com.kjetland" %% "mbknor-jackson-jsonschema" % "1.0.39",
+      "com.networknt" % "json-schema-validator" % "1.0.82",
+      //
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.2",
       "org.scala-lang.modules" %% "scala-java8-compat" % "1.0.2",
       "com.lihaoyi" %% "scalatags" % "0.13.1",

@@ -10,21 +10,28 @@ import jakarta.validation.constraints.NotBlank
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation._
 import reactor.core.publisher.Mono
 
 import scala.beans.BeanProperty
 
+@Validated
 @RestController
-@RequestMapping(Array("/api/v1/aws"))
+@RequestMapping(Array("/api/v1/email"))
 class ReceiveEmailController @Autowired()(
   private val emailProcessService: EmailProcessService
 ) extends LazyLogging {
 
   @PostMapping(Array("/send"))
   def receiveEmail(
-    @RequestParam source: String,
-    @Valid @RequestBody emailFormDTO: EmailFormDTO
+    @RequestParam
+    @NotBlank(message = "Source must not be blank")
+    source: String,
+
+    @Valid
+    @RequestBody
+    emailFormDTO: EmailFormDTO
   ): Mono[ResponseEntity[String]] = {
     val emailForm = emailFormDTO.toEmailForm()
     val recipient = "simon.fuxi.xie@gmail.com"
@@ -42,15 +49,17 @@ class ReceiveEmailController @Autowired()(
 
 object ReceiveEmailController {
   case class EmailFormDTO(
+    @BeanProperty
+    @NotBlank
     name: String,
 
+    @BeanProperty
     @NotBlank
     @Email(message = "Email should be valid")
-    @BeanProperty
     email: String,
 
-    @NotBlank
     @BeanProperty
+    @NotBlank
     message: String
   ) {
     def toEmailForm(): EmailForm = {
