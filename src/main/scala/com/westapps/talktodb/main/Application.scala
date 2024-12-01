@@ -12,12 +12,14 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @EnableConfigurationProperties(value = Array(classOf[AppConfig], classOf[AwsConfig], classOf[IntegrationConfig]))
 class Application
 
-object TalkToDBApplication extends App with LazyLogging {
-  try {
-    SpringApplication.run(classOf[Application], args: _*)
-  } catch {
-    case ex: Throwable =>
-      ex.printStackTrace()
-      throw ex
+object TalkToDBApplication extends LazyLogging {
+  def main(args: Array[String]): Unit = {
+    try {
+      SpringApplication.run(classOf[Application], args: _*)
+    } catch {
+      case ex: Throwable =>
+        ex.printStackTrace()
+        throw ex
+    }
   }
 }
