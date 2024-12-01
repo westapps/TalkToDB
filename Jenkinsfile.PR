@@ -1,0 +1,85 @@
+@Library('DevOps') _
+
+pipeline {
+    agent any
+    tools {
+        jdk 'JDK_CORRETTO_21'  // Ensure this matches your Jenkins configuration
+    }
+    environment {
+        AWS_DEFAULT_REGION  = "ap-southeast-2"
+        APPLICATION         = "talktodb"
+        LANGUAGE            = "scala"
+        ENV_NAME            = "ai"
+        ECR_REPO_PREFIX     = "${LANGUAGE}"
+        DOCKER_FILE_NAME    = "Dockerfile"
+        CODE_BASE_PATH      = "."
+        SBT_VERSION         = "sbt 1.7.2"
+        SBT_TEST_FLAGS      = "-Dfile.encoding=UTF-8"
+        JAVA_TOOL_OPTIONS   = "-Dfile.encoding=UTF-8"
+        SBT_TEST_CMD        = "clean coverage test coverageReport scapegoat"
+        SBT_BUILD_FLAGS     = "-Dsbt.log.noformat=true"
+        JACOCO_REPORT_DIR   = "target/scala-2.13/jacoco/report"
+    }
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '40'))
+        timestamps()
+        ansiColor('xterm')
+        disableConcurrentBuilds()
+    }
+    stages {
+        stage('Print Environment') {
+            steps {
+                script {
+                    currentBuild.displayName = "#${BUILD_NUMBER}:${env.BRANCH_NAME}"
+                    currentBuild.description = "GIT: ${env.GIT_COMMIT ?: 'No commit info'}"
+                    echo "Environment Variables:"
+                    sh 'printenv'
+                }
+            }
+        }
+        stage('Test Code') {
+            agent {
+                docker {
+                    image 'sbtscala/scala-sbt:eclipse-temurin-jammy-21.0.2_13_1.9.8_2.13.12'
+                    args "-v /var/run/docker.sock:/var/run/docker.sock -v ${HOME}/.ivy2:/root/.ivy2 -u root"
+                }
+            }
+            steps {
+                script {
+                    sh "sbt ${SBT_TEST_FLAGS} ${SBT_TEST_CMD}"
+                    jacoco(
+                        execPattern: '**/target/scala-2.13/jacoco/data/*.exec',
+                        minimumBranchCoverage: '5',
+                        minimumClassCoverage: '20',
+                        minimumComplexityCoverage: '10',
+                        minimumInstructionCoverage: '20',
+                        minimumLineCoverage: '20',
+                        minimumMethodCoverage: '10',
+                        sourceInclusionPattern: '**/*.scala,**/*.java',
+                        sourcePattern: 'src/main/scala'
+                    )
+                }
+            }
+        }
+        stage('Static Code Analysis') {
+            steps {
+                script {
+                    sh "sbt scapegoat"
+                    archiveArtifacts artifacts: 'target/scapegoat-report/*', allowEmptyArchive: true
+                }
+            }
+        }
+    }
+    post {
+        always {
+            echo 'Cleaning up workspace...'
+            cleanWs()
+        }
+        success {
+            echo 'Build succeeded!'
+        }
+        failure {
+            echo 'Build failed!'
+        }
+    }
+}
