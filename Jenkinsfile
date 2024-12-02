@@ -34,6 +34,15 @@ pipeline {
         disableConcurrentBuilds()
     }
     stages {
+        stage('Checkout Source') {
+            steps {
+                git(
+                    url: 'https://github.com/westapps/TalkToDB.git',
+                    branch: "${BRANCH_NAME}",
+                    credentialsId: 'GITHUB_CREDENTIALS'
+                )
+            }
+        }
         stage('Print env') {
             steps {
                 script {
