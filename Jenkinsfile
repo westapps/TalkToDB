@@ -39,7 +39,7 @@ pipeline {
                 git(
                     url: 'https://github.com/westapps/TalkToDB.git',
                     branch: "${BRANCH_NAME}",
-                    credentialsId: 'GITHUB_CREDENTIALS'
+                    credentialsId: 'github-credentials'
                 )
             }
         }
