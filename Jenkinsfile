@@ -34,15 +34,14 @@ pipeline {
         disableConcurrentBuilds()
     }
     stages {
-        stage('Checkout Source') {
+        stage('Check Out Git Repo') {
             steps {
-                git(
-                    url: 'https://github.com/westapps/TalkToDB.git',
-                    branch: "${BRANCH_NAME}",
-                    credentialsId: 'github-credentials'
-                )
+                // Check out the code from GitHub with SSH authentication
+                git branch: 'main', 
+                url: 'git@github.com:simonfuxixie/TalkToDB.git', 
+                credentialsId: 'github-credentials'
             }
-        }
+        }    
         stage('Print env') {
             steps {
                 script {
