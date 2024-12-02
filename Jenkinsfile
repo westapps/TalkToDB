@@ -1,5 +1,3 @@
-@Library('DevOps') _
-
 def deployEnvType = ["uat"]
 
 pipeline {

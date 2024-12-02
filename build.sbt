@@ -91,6 +91,8 @@ lazy val root = (project in file("."))
       "net.datafaker" % "datafaker" % "2.2.2" % Test,
       "io.vavr" % "vavr" % "0.10.4" % Test,
       "org.junit.jupiter" % "junit-jupiter-api" % "5.8.1" % Test,
+      "org.testcontainers" % "testcontainers" % "1.20.4" % Test,
+      "org.testcontainers" % "junit-jupiter" % "1.20.4" % Test,
 
       "io.netty" % "netty-resolver-dns-native-macos" % "4.1.84.Final" % Runtime classifier "osx-aarch_64"
     ),
