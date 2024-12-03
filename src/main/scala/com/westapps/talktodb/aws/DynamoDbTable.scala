@@ -288,12 +288,14 @@ private[aws] class DynamoDbSerializerAdapter[T](
   private val serializer: DynamoDbSerializer[T]
 ) extends AsJavaExtensions with AsScalaExtensions {
   def toKey(primaryKey: Any, sortKey: Option[Any]): java.util.Map[String, AttributeValue] = {
-    val keyMap = sortKey match {
-      case Some(sk) if serializer.sortKeyName().isDefined => Map(
+    val keyMap = (sortKey, serializer.sortKeyName()) match {
+      case (Some(sk), Some(sortKeyName)) => Map(
         serializer.keyName() -> toAttributeValue(primaryKey),
-        serializer.sortKeyName().get -> toAttributeValue(sk))
+        sortKeyName -> toAttributeValue(sk)
+      )
       case _ => Map(serializer.keyName() -> toAttributeValue(primaryKey))
     }
+
     keyMap.asJava
   }
 
