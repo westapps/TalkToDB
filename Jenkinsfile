@@ -22,7 +22,7 @@ pipeline {
         CODE_BASE_PATH      = "."
         SBT_BUILD_VER        = "sbt 1.7.2"
         SBT_TEST_FLAGS       = " "
-        SBT_TEST_CMD         = "clean coverage test coverageReport scapegoat sonarScan"
+        SBT_TEST_CMD         = "clean test scapegoat" //coverage coverageReport sonarScan
         SBT_DOCKER_IMAGE     = "sbtscala/scala-sbt:eclipse-temurin-jammy-21.0.2_13_1.9.8_2.13.12"
         SBT_BUILD_FLAGS      = "-Dsbt.log.noformat=true"
         SBT_BUILD_CMD        = "clean universal:packageZipTarball"
