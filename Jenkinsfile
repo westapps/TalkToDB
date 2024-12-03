@@ -1,5 +1,12 @@
 def deployEnvType = ["uat"]
 
+def printEnvironment() {
+    echo "Printing Environment Variables:"
+    env.each { key, value ->
+        echo "$key = $value"
+    }
+}
+
 pipeline {
     agent any
     parameters {
@@ -104,7 +111,7 @@ pipeline {
         stage('Deploy container to EC2') {
             steps {
                 script {
-                    sshagent(['your-ssh-key-id']) {
+                    sshagent(['talktodb-ec2-ssh-key-id']) {
                         sh """
                             ssh ec2-user@<your-ec2-instance-ip> << EOF
                                 docker pull ${ECR_URI}:latest
