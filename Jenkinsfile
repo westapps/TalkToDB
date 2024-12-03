@@ -36,7 +36,7 @@ pipeline {
         stage('Check Out Git Repo') {
             steps {
                 git branch: 'main', 
-                url: 'git@github.com:westapps/TalkToDB.git',
+                url: 'https://github.com/westapps/TalkToDB.git',
                 credentialsId: 'github-credentials'
             }
         }    
