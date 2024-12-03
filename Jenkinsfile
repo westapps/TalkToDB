@@ -1,4 +1,4 @@
-def deployEnvType = ["uat"]
+def deployEnvType = ["production"]
 
 def printEnvironment() {
     echo "Printing Environment Variables:"
@@ -27,7 +27,7 @@ pipeline {
         SBT_BUILD_FLAGS      = "-Dsbt.log.noformat=true"
         SBT_BUILD_CMD        = "clean universal:packageZipTarball"
         AWS_REGION           = "ap-southeast-2"
-        ECR_URI              = "165769518303.dkr.ecr.ap-southeast-2.amazonaws.com/${APPLICATION}"
+        ECR_URI              = "165769518303.dkr.ecr.ap-southeast-2.amazonaws.com/scala/talktodb"
 
         SOURCE_DIRS          = "${CODE_BASE_PATH}/src/main" // Comma-separated list of directories that contain source code to analyze
         EXCLUSION_DIRS       = "**/*Bean.scala,**/*DTO.scala"
@@ -79,24 +79,36 @@ pipeline {
                 stash(name: "artifact", includes: "target/**")
             }
         }
-        stage('Build container') {
+        stage('Build Container') {
             steps {
                 script {
-                    unstash(name: "artifact")
+                    unstash 'build'
 
-                    pipelineBuildContainer(
-                        dockerBuildFolder: CODE_BASE_PATH,
-                        dockerRepoPrefix: TEAM,
-                        dockerfileName: DOCKER_FILE_NAME,
-                        taskName: APPLICATION,
-                        buildNumber: BUILD_NUMBER,
-                        branchName: BRANCH_NAME,
-                        generateDockerfile: false,
-                        enableJavaOptsCheck: false
-                    )
+                    // Build Docker image
+                    sh '''
+                    docker build -t ai-talktodb:${env.BUILD_NUMBER} .
+                    '''
                 }
             }
         }
+//         stage('Build container') {
+//             steps {
+//                 script {
+//                     unstash(name: "artifact")
+//
+//                     pipelineBuildContainer(
+//                         dockerBuildFolder: CODE_BASE_PATH,
+//                         dockerRepoPrefix: TEAM,
+//                         dockerfileName: DOCKER_FILE_NAME,
+//                         taskName: APPLICATION,
+//                         buildNumber: BUILD_NUMBER,
+//                         branchName: BRANCH_NAME,
+//                         generateDockerfile: false,
+//                         enableJavaOptsCheck: false
+//                     )
+//                 }
+//             }
+//         }
         stage('Push image to AWS ECR') {
             steps {
                 script {
