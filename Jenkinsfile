@@ -30,15 +30,13 @@ pipeline {
     options {
         buildDiscarder(logRotator(numToKeepStr: '40'))
         timestamps()
-        ansiColor('xterm')
         disableConcurrentBuilds()
     }
     stages {
         stage('Check Out Git Repo') {
             steps {
-                // Check out the code from GitHub with SSH authentication
                 git branch: 'main', 
-                url: 'git@github.com:simonfuxixie/TalkToDB.git', 
+                url: 'git@github.com:westapps/TalkToDB.git',
                 credentialsId: 'github-credentials'
             }
         }    
