@@ -83,11 +83,7 @@ pipeline {
             steps {
                 script {
                     unstash 'artifact'
-
-                    // Build Docker image
-                    sh """
-                    docker build -t ai-talktodb:${env.BUILD_NUMBER} .
-                    """
+                    sh "docker build -t ${APPLICATION} ."
                 }
             }
         }
@@ -96,8 +92,8 @@ pipeline {
                 script {
                     sh """
                         aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_URI}
-                        docker tag ${APPLICATION}:${env.BUILD_NUMBER} ${ECR_URI}:${env.BUILD_NUMBER}
-                        docker push ${ECR_URI}:${env.BUILD_NUMBER}
+                        docker tag ${APPLICATION} ${ECR_URI}:latest
+                        docker push ${ECR_URI}:latest
                     """
                 }
             }
@@ -108,10 +104,10 @@ pipeline {
                     sshagent(['talktodb-ec2-ssh-key-id']) {
                         sh """
                             ssh ec2-user@<your-ec2-instance-ip> << EOF
-                                docker pull ${ECR_URI}:${env.BUILD_NUMBER}
+                                docker pull ${ECR_URI}:latest
                                 docker stop ${APPLICATION} || true
                                 docker rm ${APPLICATION} || true
-                                docker run -d -p 8080:8080 --name ${APPLICATION} -e ENV_TYPE=${ENV_TYPE} ${ECR_URI}:${env.BUILD_NUMBER}
+                                docker run -d -p 8080:8080 --name ${APPLICATION} -e ENV_TYPE=${ENV_TYPE} ${ECR_URI}:latest
                             EOF
                         """
                     }
