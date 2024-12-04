@@ -85,37 +85,19 @@ pipeline {
                     unstash 'artifact'
 
                     // Build Docker image
-                    sh '''
+                    sh """
                     docker build -t ai-talktodb:${env.BUILD_NUMBER} .
-                    '''
+                    """
                 }
             }
         }
-//         stage('Build container') {
-//             steps {
-//                 script {
-//                     unstash(name: "artifact")
-//
-//                     pipelineBuildContainer(
-//                         dockerBuildFolder: CODE_BASE_PATH,
-//                         dockerRepoPrefix: TEAM,
-//                         dockerfileName: DOCKER_FILE_NAME,
-//                         taskName: APPLICATION,
-//                         buildNumber: BUILD_NUMBER,
-//                         branchName: BRANCH_NAME,
-//                         generateDockerfile: false,
-//                         enableJavaOptsCheck: false
-//                     )
-//                 }
-//             }
-//         }
         stage('Push image to AWS ECR') {
             steps {
                 script {
                     sh """
                         aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_URI}
-                        docker tag ${APPLICATION}:latest ${ECR_URI}:latest
-                        docker push ${ECR_URI}:latest
+                        docker tag ${APPLICATION}:${env.BUILD_NUMBER} ${ECR_URI}:${env.BUILD_NUMBER}
+                        docker push ${ECR_URI}:${env.BUILD_NUMBER}
                     """
                 }
             }
@@ -126,10 +108,10 @@ pipeline {
                     sshagent(['talktodb-ec2-ssh-key-id']) {
                         sh """
                             ssh ec2-user@<your-ec2-instance-ip> << EOF
-                                docker pull ${ECR_URI}:latest
+                                docker pull ${ECR_URI}:${env.BUILD_NUMBER}
                                 docker stop ${APPLICATION} || true
                                 docker rm ${APPLICATION} || true
-                                docker run -d -p 8080:8080 --name ${APPLICATION} -e ENV_TYPE=${ENV_TYPE} ${ECR_URI}:latest
+                                docker run -d -p 8080:8080 --name ${APPLICATION} -e ENV_TYPE=${ENV_TYPE} ${ECR_URI}:${env.BUILD_NUMBER}
                             EOF
                         """
                     }
