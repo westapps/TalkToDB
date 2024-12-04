@@ -82,7 +82,7 @@ pipeline {
         stage('Build Container') {
             steps {
                 script {
-                    unstash 'build'
+                    unstash 'artifact'
 
                     // Build Docker image
                     sh '''
