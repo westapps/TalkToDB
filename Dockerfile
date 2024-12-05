@@ -3,7 +3,7 @@ FROM sbtscala/scala-sbt:eclipse-temurin-jammy-21.0.2_13_1.9.8_2.13.12
 ENV ENV_TYPE=${ENV_TYPE}
 
 # Open up the application port
-EXPOSE 80
+EXPOSE 8080
 
 # Copy the built package into the container
 COPY target/universal/*.tgz /mnt/package.tgz

@@ -12,7 +12,7 @@ aws:
 
 # Integration Configuration
 integration:
-  dataApiUrl: xxx #to be updated
+  dataApiUrl: "xxx" #to be updated
 
 # Server Configuration
 server:
