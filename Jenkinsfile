@@ -113,7 +113,7 @@ pipeline {
                 '''
             }
         }
-        stage('Deploy to EC2 Resume-UI instance') {
+        stage('Deploy to EC2 TALKTODB instance') {
             steps {
                 sshagent (credentials: [TALKTODB_EC2_SSH_CREDENTIALS]) {
                     sh '''
@@ -123,7 +123,7 @@ pipeline {
                             docker pull $AWS_ECR_REGISTRY/$IMAGE_REPO_NAME:$IMAGE_TAG && \
                             docker stop $APPLICATION_NAME || true && \
                             docker rm $APPLICATION_NAME || true && \
-                            docker run -d -p 80:80 --name $APPLICATION_NAME \
+                            docker run -d -p 80:8080 --name $APPLICATION_NAME \
                             $AWS_ECR_REGISTRY/$IMAGE_REPO_NAME:$IMAGE_TAG \
                         "
                     '''
