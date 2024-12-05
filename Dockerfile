@@ -1,4 +1,4 @@
-FROM 165769518303.dkr.ecr.ap-southeast-2.amazonaws.com/scala/talktodb:latest
+FROM 165769518303.dkr.ecr.ap-southeast-2.amazonaws.com/base/corretto21-sbt:latest
 
 # Open up the application port
 EXPOSE 8080

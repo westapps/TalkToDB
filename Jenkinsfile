@@ -14,7 +14,19 @@ pipeline {
         choice(name: 'ENV_TYPE', choices: deployEnvType, description: 'Choose the environment to build and deploy into')
     }
     environment {
-        APPLICATION         = "ai-talktodb"
+        //Git
+        GIT_URL             = "https://github.com/westapps/TalkToDB.git"
+        GIT_CREDENTIALS     = "github-credentials"
+        //AWS
+        AWS_DEFAULT_REGION  = 'ap-southeast-2'
+        APPLICATION_NAME    = "talktodb"
+        AWS_DEFAULT_REGION   = "ap-southeast-2"
+        AWS_ECR_REGISTRY     = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+        IMAGE_REPO_NAME      = "scala/${APPLICATION_NAME}"
+        IMAGE_TAG            = "latest"
+        ECR_URI              = "${AWS_ECR_REGISTRY}/${IMAGE_REPO_NAME}"
+        EC2_USER_AT_TALKTODB_INSTANCE = 'ec2-user@ip-172-31-44-201.ap-southeast-2.compute.internal'
+        //SBT
         TEAM                = "westapps"
         ENV_NAME            = "ai"
         ECR_REPO_PREFIX     = "${TEAM}"
@@ -26,9 +38,7 @@ pipeline {
         SBT_DOCKER_IMAGE     = "sbtscala/scala-sbt:eclipse-temurin-jammy-21.0.2_13_1.9.8_2.13.12"
         SBT_BUILD_FLAGS      = "-Dsbt.log.noformat=true"
         SBT_BUILD_CMD        = "clean universal:packageZipTarball"
-        AWS_REGION           = "ap-southeast-2"
-        ECR_URI              = "165769518303.dkr.ecr.ap-southeast-2.amazonaws.com/scala/talktodb"
-
+        //
         SOURCE_DIRS          = "${CODE_BASE_PATH}/src/main" // Comma-separated list of directories that contain source code to analyze
         EXCLUSION_DIRS       = "**/*Bean.scala,**/*DTO.scala"
         LIBRARY_DIRS         = "${HOME}/.ivy2"
@@ -43,14 +53,14 @@ pipeline {
         stage('Check Out Git Repo') {
             steps {
                 git branch: 'main', 
-                url: 'https://github.com/westapps/TalkToDB.git',
-                credentialsId: 'github-credentials'
+                url: "${GIT_URL}",
+                credentialsId: "${GIT_CREDENTIALS}"
             }
         }    
         stage('Print env') {
             steps {
-                script {
-                    currentBuild.displayName = "#${BUILD_NUMBER}:${BRANCH_NAME}"
+                script { //todo: this block of script did not run, can noe display ${BUILD_NUMBER}
+                    currentBuild.displayName = "#${env.BUILD_NUMBER}:${env.BRANCH_NAME}"
                     currentBuild.description = "ENV_TYPE: <b>${ENV_TYPE}</b>"
                     printEnvironment()
                 }
@@ -83,7 +93,7 @@ pipeline {
             steps {
                 script {
                     unstash 'artifact'
-                    sh "docker build -t ${APPLICATION} ."
+                    sh "docker build -t ${APPLICATION_NAME}:${IMAGE_TAG} ."
                 }
             }
         }
@@ -91,8 +101,8 @@ pipeline {
             steps {
                 script {
                     sh """
-                        aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_URI}
-                        docker tag ${APPLICATION} ${ECR_URI}:latest
+                        aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ECR_REGISTRY}
+                        docker tag ${APPLICATION_NAME}:${IMAGE_TAG} ${ECR_URI}:${IMAGE_TAG}
                         docker push ${ECR_URI}:latest
                     """
                 }
@@ -100,20 +110,26 @@ pipeline {
         }
         stage('Deploy container to EC2') {
             steps {
-                script {
-                    sshagent(['talktodb-ec2-ssh-key-id']) {
-                        sh """
-                            ssh ec2-user@<your-ec2-instance-ip> << EOF
-                                docker pull ${ECR_URI}:latest
-                                docker stop ${APPLICATION} || true
-                                docker rm ${APPLICATION} || true
-                                docker run -d -p 8080:8080 --name ${APPLICATION} -e ENV_TYPE=${ENV_TYPE} ${ECR_URI}:latest
-                            EOF
-                        """
-                    }
+                sshagent (credentials: ['talktodb-ec2-ssh-key-id']) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no $EC2_USER_AT_TALKTODB_INSTANCE "\
+                            aws ecr get-login-password --region $AWS_DEFAULT_REGION | \
+                            docker login --username AWS --password-stdin $AWS_ECR_REGISTRY && \
+                            docker pull $AWS_ECR_REGISTRY/$IMAGE_REPO_NAME:$IMAGE_TAG && \
+                            docker stop $APPLICATION_NAME || true && \
+                            docker rm $APPLICATION_NAME || true && \
+                            docker run -d -p 80:80 --name $APPLICATION ${ECR_URI}:${IMAGE_TAG}
+                        "
+                    '''
                 }
             }
         }
+        stage('Clean Up') {
+            steps {
+                // Optional: Remove the image locally to save space
+                sh "docker rmi ${APPLICATION_NAME}:${IMAGE_TAG} || true"
+            }
+       }
     }
     post {
         success {
