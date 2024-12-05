@@ -15,22 +15,21 @@ pipeline {
     }
     environment {
         //Git
-        GIT_URL             = "https://github.com/westapps/TalkToDB.git"
-        GIT_CREDENTIALS     = "github-credentials"
+        GIT_URL             = 'https://github.com/westapps/TalkToDB.git'
+        GIT_CREDENTIALS     = 'github-credentials'
         //AWS
         AWS_DEFAULT_REGION  = 'ap-southeast-2'
-        APPLICATION_NAME    = "talktodb"
-        AWS_DEFAULT_REGION   = "ap-southeast-2"
+        APPLICATION_NAME    = 'talktodb'
         AWS_ECR_REGISTRY     = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
         IMAGE_REPO_NAME      = "scala/${APPLICATION_NAME}"
-        IMAGE_TAG            = "latest"
+        IMAGE_TAG            = 'latest'
         ECR_URI              = "${AWS_ECR_REGISTRY}/${IMAGE_REPO_NAME}"
         EC2_USER_AT_TALKTODB_INSTANCE = 'ec2-user@ip-172-31-44-201.ap-southeast-2.compute.internal'
         //SBT
-        TEAM                = "westapps"
-        ENV_NAME            = "ai"
+        TEAM                = 'westapps'
+        ENV_NAME            = 'ai'
         ECR_REPO_PREFIX     = "${TEAM}"
-        DOCKER_FILE_NAME    = "Dockerfile"
+        DOCKER_FILE_NAME    = 'Dockerfile'
         CODE_BASE_PATH      = "."
         SBT_BUILD_VER        = "sbt 1.7.2"
         SBT_TEST_FLAGS       = " "
