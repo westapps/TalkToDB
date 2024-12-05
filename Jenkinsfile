@@ -101,7 +101,7 @@ pipeline {
             steps {
                 script {
                     unstash 'artifact'
-                    sh "docker build --network=host -t $AWS_ECR_REGISTRY/$IMAGE_REPO_NAME:$IMAGE_TAG ."
+                    sh "docker build --build-arg ENV_TYPE=${params.ENV_TYPE} --network=host -t $AWS_ECR_REGISTRY/$IMAGE_REPO_NAME:$IMAGE_TAG ."
                 }
             }
         }
