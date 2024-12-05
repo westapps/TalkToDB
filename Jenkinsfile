@@ -25,6 +25,7 @@ pipeline {
         IMAGE_TAG            = 'latest'
         ECR_URI              = "${AWS_ECR_REGISTRY}/${IMAGE_REPO_NAME}"
         EC2_USER_AT_TALKTODB_INSTANCE = 'ec2-user@ip-172-31-44-201.ap-southeast-2.compute.internal'
+        TALKTODB_EC2_SSH_CREDENTIALS = 'talktodb-ec2-ssh-key-id'
         //SBT
         TEAM                = 'westapps'
         ENV_NAME            = 'ai'
@@ -88,28 +89,33 @@ pipeline {
                 stash(name: "artifact", includes: "target/**")
             }
         }
+        stage('Authenticate with AWS ECR') {
+            steps {
+                sh '''
+                    aws ecr get-login-password --region $AWS_DEFAULT_REGION | \
+                    docker login --username AWS --password-stdin $AWS_ECR_REGISTRY
+                '''
+            }
+        }
         stage('Build Container') {
             steps {
                 script {
                     unstash 'artifact'
-                    sh "docker build -t ${APPLICATION_NAME}:${IMAGE_TAG} ."
+                    sh "docker build --network=host -t $AWS_ECR_REGISTRY/$IMAGE_REPO_NAME:$IMAGE_TAG ."
                 }
             }
         }
-        stage('Push image to AWS ECR') {
+        stage('Push Docker Image to AWS ECR') {
             steps {
-                script {
-                    sh """
-                        aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ECR_REGISTRY}
-                        docker tag ${APPLICATION_NAME}:${IMAGE_TAG} ${ECR_URI}:${IMAGE_TAG}
-                        docker push ${ECR_URI}:latest
-                    """
-                }
+                // Push the Docker image to AWS ECR
+                sh '''
+                    docker push $AWS_ECR_REGISTRY/$IMAGE_REPO_NAME:$IMAGE_TAG
+                '''
             }
         }
-        stage('Deploy container to EC2') {
+        stage('Deploy to EC2 Resume-UI instance') {
             steps {
-                sshagent (credentials: ['talktodb-ec2-ssh-key-id']) {
+                sshagent (credentials: [TALKTODB_EC2_SSH_CREDENTIALS]) {
                     sh '''
                         ssh -o StrictHostKeyChecking=no $EC2_USER_AT_TALKTODB_INSTANCE "\
                             aws ecr get-login-password --region $AWS_DEFAULT_REGION | \
@@ -117,7 +123,8 @@ pipeline {
                             docker pull $AWS_ECR_REGISTRY/$IMAGE_REPO_NAME:$IMAGE_TAG && \
                             docker stop $APPLICATION_NAME || true && \
                             docker rm $APPLICATION_NAME || true && \
-                            docker run -d -p 80:80 --name $APPLICATION ${ECR_URI}:${IMAGE_TAG}
+                            docker run -d -p 80:80 --name $APPLICATION_NAME \
+                            $AWS_ECR_REGISTRY/$IMAGE_REPO_NAME:$IMAGE_TAG \
                         "
                     '''
                 }
