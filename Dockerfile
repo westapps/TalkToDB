@@ -1,4 +1,6 @@
-FROM 165769518303.dkr.ecr.ap-southeast-2.amazonaws.com/base/corretto21-sbt:latest
+FROM sbtscala/scala-sbt:eclipse-temurin-jammy-21.0.2_13_1.9.8_2.13.12
+
+ENV ENV_TYPE=${ENV_TYPE}
 
 # Open up the application port
 EXPOSE 8080
