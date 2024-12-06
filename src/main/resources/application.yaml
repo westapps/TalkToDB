@@ -7,7 +7,7 @@ app:
 aws:
   region: ap-southeast-2
   ses:
-    senderEmail: admin@resume.simon.xie.net
+    senderEmail: admin@resume.simonxie.net
     replyToEmail: simon.fuxi.xie@gmail.com
 
 # Integration Configuration
