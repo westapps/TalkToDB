@@ -25,15 +25,17 @@ logging:
 
 # Database Configuration
 spring:
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.r2dbc.R2dbcAutoConfiguration
   main:
     web-application-type: reactive
   application:
-    name: talktodb-api
-  datasource:
-    url: "jdbc:mysql://localhost:3306/talktodb"
-    username: "root"
-    password: "root"
-    driver-class-name: "com.mysql.cj.jdbc.Driver"
+    name: talktodb-api(Production)
+#  datasource:
+#    url: "jdbc:mysql://localhost:3306/talktodb"
+#    username: "root"
+#    password: "root"
+#    driver-class-name: "com.mysql.cj.jdbc.Driver"
 
   jpa:
     hibernate:

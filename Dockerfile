@@ -1,7 +1,5 @@
 FROM sbtscala/scala-sbt:eclipse-temurin-jammy-21.0.2_13_1.9.8_2.13.12
 
-ENV ENV_TYPE=${ENV_TYPE}
-
 # Open up the application port
 EXPOSE 8080
 
@@ -21,4 +19,4 @@ WORKDIR /mnt
 # You can pass any additional arguments to the application shell script
 # if you specify it as an array of strings.
 # eg. CMD ["script","arg_a","arg_b",...]
-CMD ["/mnt/bin/talktodb", "-Dspring.profiles.active=${ENV_TYPE}"]
+CMD ["/mnt/bin/ai-talktodb", "-Dspring.profiles.active=production"]
