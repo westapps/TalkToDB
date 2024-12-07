@@ -11,13 +11,19 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
-import org.springframework.web.bind.annotation._
+import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 
 import scala.beans.BeanProperty
 
 @Validated
 @RestController
+@CrossOrigin(origins = Array("http://resume.simonxie.net", "https://resume.simonxie.net"))
 @RequestMapping(Array("/api/v1/email"))
 class ReceiveEmailController @Autowired()(
   private val emailProcessService: EmailProcessService
@@ -28,7 +34,6 @@ class ReceiveEmailController @Autowired()(
     @RequestParam
     @NotBlank(message = "Source must not be blank")
     source: String,
-
     @Valid
     @RequestBody
     emailFormDTO: EmailFormDTO
