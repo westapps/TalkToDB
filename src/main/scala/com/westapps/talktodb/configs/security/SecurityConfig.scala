@@ -1,7 +1,6 @@
 package com.westapps.talktodb.configs.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.westapps.talktodb.configs.json.JsonSupportMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
