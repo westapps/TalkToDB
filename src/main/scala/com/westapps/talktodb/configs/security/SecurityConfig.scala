@@ -1,6 +1,7 @@
 package com.westapps.talktodb.configs.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.westapps.talktodb.configs.json.JsonSupportMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -34,6 +35,11 @@ class SecurityConfig(@Autowired securityContextRepository: ServerSecurityContext
 
   @Bean
   def securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain = {
+    http.authorizeExchange()
+      .pathMatchers(HttpMethod.OPTIONS).permitAll()
+      .pathMatchers("/api/v1/**").authenticated()
+      .anyExchange().permitAll()
+
     http
       .httpBasic().disable()
       .formLogin().disable()
@@ -64,11 +70,6 @@ class SecurityConfig(@Autowired securityContextRepository: ServerSecurityContext
         val buffer = response.bufferFactory().wrap(bytes)
         response.writeWith(Mono.just(buffer))
       })
-
-    http.authorizeExchange()
-      .pathMatchers(HttpMethod.OPTIONS).permitAll()
-      .pathMatchers("/api/v1/**").authenticated()
-      .anyExchange().permitAll()
 
     http.build()
   }
