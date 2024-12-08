@@ -1,11 +1,14 @@
 package com.westapps.talktodb.configs
 
 import org.springframework.context.annotation.{Bean, Configuration}
+import org.springframework.core.annotation.Order
+import org.springframework.core.Ordered
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.reactive.CorsWebFilter
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource
 
 @Configuration
+@Order(Ordered.HIGHEST_PRECEDENCE)
 class GlobalCorsConfig {
 
   @Bean
