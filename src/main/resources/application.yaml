@@ -21,6 +21,7 @@ server:
 # Logging Configuration
 logging:
   level:
+    org.springframework.web.cors: DEBUG
     root: INFO
 
 # Database Configuration
@@ -43,3 +44,6 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+
+

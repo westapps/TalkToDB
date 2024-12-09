@@ -38,12 +38,12 @@ class SecurityConfig(@Autowired securityContextRepository: ServerSecurityContext
 
   @Bean
   def securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain = {
-    // Configure CORS with reactive configuration source
+    // Apply CORS configuration
     http.cors().configurationSource(corsConfigurationSource())
 
     // Configure security rules
     http.authorizeExchange()
-      .pathMatchers(HttpMethod.OPTIONS).permitAll()
+      .pathMatchers(HttpMethod.OPTIONS).permitAll() // Permit preflight requests
       .pathMatchers("/api/v1/**").authenticated()
       .anyExchange().permitAll()
 
@@ -93,18 +93,19 @@ class SecurityConfig(@Autowired securityContextRepository: ServerSecurityContext
       )
     )
     configuration.setAllowedMethods(
-      java.util.List.of("GET", "POST", "DELETE", "PATCH")
+      java.util.List.of("GET", "POST", "DELETE", "PATCH", "OPTIONS") // Including OPTIONS for preflight
     )
     configuration.setAllowedHeaders(
-      java.util.List.of("Authorization")
+      java.util.List.of("Authorization", "Content-Type") // Added "Content-Type"
     )
-    configuration.setAllowCredentials(true) // Enable if credentials are needed
+    configuration.setAllowCredentials(true) // Optional: Enable if needed
 
     val source = new UrlBasedCorsConfigurationSource()
     source.registerCorsConfiguration("/**", configuration)
 
     source
   }
+
 
   private def authenticationWebFilter(): AuthenticationWebFilter = {
     val authManager: ReactiveAuthenticationManager = (authentication: Authentication) => {
