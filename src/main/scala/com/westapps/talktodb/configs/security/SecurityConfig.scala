@@ -1,6 +1,7 @@
 package com.westapps.talktodb.configs.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.typesafe.scalalogging.LazyLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -10,7 +11,6 @@ import org.springframework.http.MediaType
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder
@@ -22,41 +22,43 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.security.web.server.context.ServerSecurityContextRepository
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository
 import org.springframework.web.cors.CorsConfiguration
-import org.springframework.web.cors.CorsConfigurationSource
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import org.springframework.web.cors.reactive.CorsConfigurationSource
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource
 import reactor.core.publisher.Mono
 
 import java.util.Collections
-import scala.jdk.CollectionConverters.IterableHasAsJava
+import scala.jdk.CollectionConverters._
 
 @Configuration
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity(useAuthorizationManager = true)
-class SecurityConfig(@Autowired securityContextRepository: ServerSecurityContextRepository) {
+class SecurityConfig(@Autowired securityContextRepository: ServerSecurityContextRepository) extends LazyLogging {
 
   private val AUTH_TOKEN = "99e2e3b8-c89c-426b-b2ac-da0e18e9c9b2"
 
   @Bean
   def securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain = {
-    //cors
-    http.cors(Customizer.withDefaults())
+    // Configure CORS with reactive configuration source
+    http.cors().configurationSource(corsConfigurationSource())
 
-    //
+    // Configure security rules
     http.authorizeExchange()
       .pathMatchers(HttpMethod.OPTIONS).permitAll()
       .pathMatchers("/api/v1/**").authenticated()
       .anyExchange().permitAll()
 
+    // Disable default security mechanisms
     http
       .httpBasic().disable()
       .formLogin().disable()
       .logout().disable()
       .csrf().disable()
 
+    // Set security context repository and add authentication filter
     http.securityContextRepository(securityContextRepository)
     http.addFilterAt(authenticationWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
 
-    // Configure exception handling for AccessDeniedException
+    // Configure exception handling
     http.exceptionHandling()
       .accessDeniedHandler((exchange, denied) => {
         val response = exchange.getResponse
@@ -67,7 +69,6 @@ class SecurityConfig(@Autowired securityContextRepository: ServerSecurityContext
         val buffer = response.bufferFactory().wrap(bytes)
         response.writeWith(Mono.just(buffer))
       })
-      // Optionally also handle unauthorized (authentication) failures
       .authenticationEntryPoint((exchange, authException) => {
         val response = exchange.getResponse
         response.setStatusCode(HttpStatus.UNAUTHORIZED)
@@ -84,9 +85,20 @@ class SecurityConfig(@Autowired securityContextRepository: ServerSecurityContext
   @Bean
   def corsConfigurationSource(): CorsConfigurationSource = {
     val configuration = new CorsConfiguration()
-    configuration.setAllowedOrigins(java.util.List.of("http://resume.simonxie.net", "https://resume.simonxie.net", "http://localhost"))
-    configuration.setAllowedMethods(java.util.List.of("GET", "POST", "DELETE", "PATCH"))
-    configuration.setAllowedHeaders(java.util.List.of("Authorization"))
+    configuration.setAllowedOrigins(
+      java.util.List.of(
+        "http://resume.simonxie.net",
+        "https://resume.simonxie.net",
+        "http://localhost"
+      )
+    )
+    configuration.setAllowedMethods(
+      java.util.List.of("GET", "POST", "DELETE", "PATCH")
+    )
+    configuration.setAllowedHeaders(
+      java.util.List.of("Authorization")
+    )
+    configuration.setAllowCredentials(true) // Enable if credentials are needed
 
     val source = new UrlBasedCorsConfigurationSource()
     source.registerCorsConfiguration("/**", configuration)
