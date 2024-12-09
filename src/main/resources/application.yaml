@@ -25,6 +25,8 @@ logging:
 
 # Database Configuration
 spring:
+  profiles:
+    active: production
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.r2dbc.R2dbcAutoConfiguration
   main:
