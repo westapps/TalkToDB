@@ -10,6 +10,7 @@ import org.springframework.http.MediaType
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder
@@ -20,6 +21,9 @@ import org.springframework.security.web.server.authentication.AuthenticationWebF
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter
 import org.springframework.security.web.server.context.ServerSecurityContextRepository
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import reactor.core.publisher.Mono
 
 import java.util.Collections
@@ -34,6 +38,10 @@ class SecurityConfig(@Autowired securityContextRepository: ServerSecurityContext
 
   @Bean
   def securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain = {
+    //cors
+    http.cors(Customizer.withDefaults())
+
+    //
     http.authorizeExchange()
       .pathMatchers(HttpMethod.OPTIONS).permitAll()
       .pathMatchers("/api/v1/**").authenticated()
@@ -71,6 +79,19 @@ class SecurityConfig(@Autowired securityContextRepository: ServerSecurityContext
       })
 
     http.build()
+  }
+
+  @Bean
+  def corsConfigurationSource(): CorsConfigurationSource = {
+    val configuration = new CorsConfiguration()
+    configuration.setAllowedOrigins(java.util.List.of("http://resume.simonxie.net", "https://resume.simonxie.net", "http://localhost"))
+    configuration.setAllowedMethods(java.util.List.of("GET", "POST", "DELETE", "PATCH"))
+    configuration.setAllowedHeaders(java.util.List.of("Authorization"))
+
+    val source = new UrlBasedCorsConfigurationSource()
+    source.registerCorsConfiguration("/**", configuration)
+
+    source
   }
 
   private def authenticationWebFilter(): AuthenticationWebFilter = {
