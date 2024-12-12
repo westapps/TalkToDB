@@ -71,6 +71,9 @@ lazy val root = (project in file("."))
       "software.amazon.awssdk" % "ses" % awsSDKVersion exclude("commons-logging", "commons-logging"),
       "software.amazon.awssdk" % "sqs" % awsSDKVersion exclude("commons-logging", "commons-logging"),
       "software.amazon.awssdk" % "dynamodb" % awsSDKVersion exclude("commons-logging", "commons-logging"),
+      "software.amazon.awssdk" % "lambda" % awsSDKVersion exclude("commons-logging", "commons-logging"),
+      "software.amazon.awssdk" % "s3" % awsSDKVersion exclude("commons-logging", "commons-logging"),
+      "software.amazon.awssdk" % "sns" % awsSDKVersion exclude("commons-logging", "commons-logging"),
 
       // "software.amazon.awssdk" % "bedrockruntime" % awsSDKVersion,
       "com.github.ben-manes.caffeine" % "caffeine" % "3.1.6",

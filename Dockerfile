@@ -19,4 +19,5 @@ WORKDIR /mnt
 # You can pass any additional arguments to the application shell script
 # if you specify it as an array of strings.
 # eg. CMD ["script","arg_a","arg_b",...]
+# ai-talktodb is the setting of name := "ai-talktodb" in build.sbt
 CMD ["/mnt/bin/ai-talktodb", "-Dspring.profiles.active=production"]

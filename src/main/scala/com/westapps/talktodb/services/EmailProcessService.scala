@@ -1,6 +1,6 @@
 package com.westapps.talktodb.services
 
-import com.westapps.talktodb.aws.EmailClient
+import com.westapps.talktodb.aws.SesEmailClient
 import com.westapps.talktodb.domain.EmailForm
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -9,7 +9,7 @@ import software.amazon.awssdk.services.ses.model.SendEmailResponse
 
 @Service
 class EmailProcessService @Autowired()(
-  private val emailClient: EmailClient
+  private val emailClient: SesEmailClient
 ) {
   def processEmailForm(emailForm: EmailForm, recipientEmail: String, source: String): Mono[Boolean] = {
     val subject = source

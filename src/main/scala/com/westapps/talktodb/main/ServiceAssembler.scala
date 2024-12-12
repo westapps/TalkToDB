@@ -1,6 +1,6 @@
 package com.westapps.talktodb.main
 
-import com.westapps.talktodb.aws.EmailClient
+import com.westapps.talktodb.aws.SesEmailClient
 import com.westapps.talktodb.aws.ReactiveDynamoDbClient
 import com.westapps.talktodb.clients.AwsResources
 import com.westapps.talktodb.configs.AppConfig
@@ -48,8 +48,8 @@ class ServiceAssembler(
   }
 
   @Bean
-  def createEmailClient(sesAsyncClient: SesAsyncClient): EmailClient = {
-    new EmailClient(
+  def createEmailClient(sesAsyncClient: SesAsyncClient): SesEmailClient = {
+    new SesEmailClient(
       sesAsyncClient,
       awsConfig.ses.senderEmail,
       awsConfig.ses.replyToEmail,

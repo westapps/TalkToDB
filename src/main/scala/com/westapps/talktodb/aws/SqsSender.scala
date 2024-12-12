@@ -15,6 +15,7 @@ class SqsSender(
 			.queueUrl(sqsUrl)
 			.messageBody(message)
 			.build()
+
 		client.sendMessage(request)
 	}
 }
