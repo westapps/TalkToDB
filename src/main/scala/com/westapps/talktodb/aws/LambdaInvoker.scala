@@ -9,12 +9,11 @@ import software.amazon.awssdk.services.lambda.model.InvokeRequest
 import software.amazon.awssdk.services.lambda.model.InvokeResponse
 
 import scala.collection.convert.AsScalaExtensions
-import scala.concurrent.ExecutionContext
 
 class LambdaInvoker(
-  lambdaClient: LambdaAsyncClient,
-  lambdaFunctionName: String
-)(implicit executionContext: ExecutionContext) extends AsScalaExtensions with LazyLogging {
+  private val reactiveLambdaClient: ReactiveLambdaClient,
+  private val lambdaFunctionName: String
+) extends AsScalaExtensions with LazyLogging {
   def runWithPayload(payload: String): Mono[InvokeResponse] = {
     val invokeRequest: InvokeRequest = InvokeRequest
       .builder()
@@ -23,7 +22,15 @@ class LambdaInvoker(
       .invocationType(InvocationType.REQUEST_RESPONSE)
       .build()
 
-    Mono.fromFuture(lambdaClient.invoke(invokeRequest))
+    reactiveLambdaClient.invoke(invokeRequest)
+  }
+}
+
+class ReactiveLambdaClient(
+  private val lambdaAsyncClient: LambdaAsyncClient
+) {
+  def invoke(invokeRequest: InvokeRequest): Mono[InvokeResponse] = {
+    Mono.fromFuture(lambdaAsyncClient.invoke(invokeRequest))
   }
 }
 
