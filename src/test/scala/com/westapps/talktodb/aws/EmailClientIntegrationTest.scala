@@ -27,7 +27,7 @@
 //  @Autowired var awsConfig: AwsConfig = _
 //  @Autowired var sesAsyncClient: SesAsyncClient = _
 //
-//  var emailClient: EmailClient = _
+//  var emailClient: SesEmailClient = _
 //
 //  private val testRecipient = "simon.fuxi.xie@gmail.com"
 //  private val testSubject = "Integration Test Email"
@@ -38,7 +38,7 @@
 //
 //  @BeforeAll
 //  def setup(): Unit = {
-//    emailClient = new EmailClient(
+//    emailClient = new SesEmailClient(
 //      sesAsyncClient,
 //      awsConfig.ses.senderEmail,
 //      awsConfig.ses.replyToEmail,

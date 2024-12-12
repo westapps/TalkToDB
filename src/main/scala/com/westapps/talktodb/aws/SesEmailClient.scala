@@ -27,7 +27,7 @@ import java.util.Properties
 import scala.collection.convert.AsScalaExtensions
 
 
-class EmailClient (
+class SesEmailClient (
   @Autowired private val sesAsyncClient: SesAsyncClient,
   private val senderEmail: String,
   private val replyToEmail: String,

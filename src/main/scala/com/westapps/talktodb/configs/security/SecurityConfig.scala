@@ -38,12 +38,12 @@ class SecurityConfig(@Autowired securityContextRepository: ServerSecurityContext
 
   @Bean
   def securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain = {
-    // Apply CORS configuration
+    // Apply CORS configuration, CORS configuration must be applied before other authentications.
     http.cors().configurationSource(corsConfigurationSource())
 
     // Configure security rules
     http.authorizeExchange()
-      .pathMatchers(HttpMethod.OPTIONS).permitAll() // Permit preflight requests
+      .pathMatchers(HttpMethod.OPTIONS).permitAll() // Permit preflight requests -- HttpMethod.OPTIONS
       .pathMatchers("/api/v1/**").authenticated()
       .anyExchange().permitAll()
 
@@ -83,7 +83,7 @@ class SecurityConfig(@Autowired securityContextRepository: ServerSecurityContext
   }
 
   @Bean
-  def corsConfigurationSource(): CorsConfigurationSource = {
+  def corsConfigurationSource(): CorsConfigurationSource = {//CORS allowed origins
     val configuration = new CorsConfiguration()
     configuration.setAllowedOrigins(
       java.util.List.of(
@@ -107,7 +107,7 @@ class SecurityConfig(@Autowired securityContextRepository: ServerSecurityContext
   }
 
 
-  private def authenticationWebFilter(): AuthenticationWebFilter = {
+  private def authenticationWebFilter(): AuthenticationWebFilter = {//header Authentication + Bearer + token
     val authManager: ReactiveAuthenticationManager = (authentication: Authentication) => {
       val token = authentication.getCredentials.asInstanceOf[String]
       if (AUTH_TOKEN == token) {
